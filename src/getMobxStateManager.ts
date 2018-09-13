@@ -1,6 +1,7 @@
 import {
   Observable,
 } from 'rxjs';
+import { FormState } from './FormState';
 import {
   MobxStateManager,
 } from './MobxStateManager';
@@ -31,22 +32,28 @@ export function getMobxStateManager<
   >(args: {
     streamValidatorFactory?: undefined;
     validator? (
-      formState: string,
+      formState: FormState<FormSpec>,
     ): MaybePromise<null | ErrorValues>;
   } | {
     validator?: undefined;
     streamValidatorFactory? (
-      formStateObservable: Observable<string>,
+      formStateObservable: Observable<FormState<FormSpec>>,
     ): Observable<null | ErrorValues>;
   }) {
+
+    const {
+      validator,
+      streamValidatorFactory,
+    } = args;
+
     return new MobxStateManager<
       FormSpec,
-      FormData<FormSpec>,
-      FormDataParsed<FormSpec>,
       ErrorValues
     >({
       initialValues,
       fieldsSpec,
+      validator,
+      streamValidatorFactory,
     });
   }
 

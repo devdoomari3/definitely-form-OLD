@@ -13,11 +13,10 @@ import {
 } from './types/ExtractType';
 import { FormSpecBase } from './types/FormSpecBase';
 import { MaybePromise } from './types/MaybePromise';
+import { FormState } from './FormState';
 
 export class MobxStateManager <
   FormSpec extends FormSpecBase,
-  FormData = {[key in keyof FormSpec]: ValueProperty<FormSpec[key] > },
-  FormDataParsed = {[key in keyof FormSpec]: ParsedValueProperty<FormSpec[key]>},
   ErrorValues extends BaseErrorValuesType<FormSpec>
     = DefaultErrorValuesType<FormSpec>
 > {
@@ -38,10 +37,10 @@ export class MobxStateManager <
     initialValues?: Partial<FormData>;
     fieldsSpec: FormSpec;
     validator? (
-      formState: string,
+      formState: FormState<FormSpec>,
     ): MaybePromise<null | ErrorValues>;
     streamValidatorFactory? (
-      formStateStream: Observable<string>,
+      formStateStream: Observable<FormState<FormSpec>>,
     ): Observable<null | ErrorValues>;
   }) {
     const {
@@ -59,5 +58,11 @@ export class MobxStateManager <
       }),
       fieldsSpec,
     ) as any;
+  }
+
+  private createEventHandlersFor<Value>(fieldName) {
+    return {
+      onBlur:
+    }
   }
 }

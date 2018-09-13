@@ -4,6 +4,8 @@ import {
 } from './ExtractType';
 import { FormSpecBase } from './FormSpecBase';
 
+// FIXME: move to 'ExtractType'
+//    and rename to 'RawValuesOf', 'ParsedValuesOf' ?
 export type FormDataParsed<
   FormSpec extends FormSpecBase,
 > = {
