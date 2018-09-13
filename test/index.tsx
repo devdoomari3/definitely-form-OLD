@@ -9,6 +9,10 @@ import { map } from 'rxjs/operators/map';
 import {
   getMobxStateManager,
 } from '../src/getMobxStateManager';
+import {
+  BaseUsernameError,
+  UsernameTooShort,
+} from './UsernameErrors';
 
 const formStateManager = getMobxStateManager(
   f => ({
@@ -16,13 +20,13 @@ const formStateManager = getMobxStateManager(
     age: f<string, number>(Number),
   }),
 )<{
-  name: number;
+  name: BaseUsernameError | null;
   age: string | number;
 }>({
   streamValidatorFactory(formStateStream) {
     return formStateStream.pipe(
       map(a => ({
-        name: 123,
+        name: new UsernameTooShort(),
         age: '123',
       })),
     );
