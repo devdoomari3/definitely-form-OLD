@@ -60,9 +60,14 @@ export class MobxStateManager <
     ) as any;
   }
 
-  private createEventHandlersFor<Value>(fieldName) {
+  private createEventHandlersFor<
+    fieldNameType extends keyof FormSpec,
+    Value extends FormSpec[fieldNameType]
+  >(
+    // fieldName: keyof FormSpec,
+  ) {
     return {
-      onBlur:
+      onBlur: (value: T)
     }
   }
 }
