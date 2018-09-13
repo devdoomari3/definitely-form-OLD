@@ -26,7 +26,7 @@ export class MobxStateManager <
 
   fieldsSpec: FormSpec;
 
-  inputProps: {
+  inputEventHandlers: {
     [key in keyof FormSpec]: {
       onBlur: FocusEventHandler;
       onFocus: FocusEventHandler;
@@ -51,7 +51,7 @@ export class MobxStateManager <
 
     this.initialValues = initialValues || {};
     this.fieldsSpec = fieldsSpec;
-    this.inputProps = mapObjIndexed(
+    this.inputEventHandlers = mapObjIndexed(
       (value, key) => ({
         onBlur: (evt: FocusEvent) => {
           // ...

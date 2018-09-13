@@ -29,21 +29,33 @@ const formStateManager = getMobxStateManager(
   },
 });
 
-const test = formStateManager.errors && formStateManager.errors.name;
+// check for errors type:
+// const test = formStateManager.errors && formStateManager.errors.name;
 
 const {
-  inputProps,
+  inputEventHandlers,
   errors,
 } = formStateManager;
 
-export const TestForm: React.StatelessComponent<{}> = props => {
-  return (
-    <div>
-      <p>asd</p>
-      <input type='text' {...inputProps.age} />
-      <p className='Error'> {errors && errors.age} </p>
-    </div>
-  );
+export type PropsType = {
+  formStateManager: typeof formStateManager;
 };
 
-render(<TestForm />, document.getElementById('app'));
+const TestForm: React.StatelessComponent<PropsType> = observer(
+  props => {
+    return (
+      <div>
+        <p>asd</p>
+        <input type='text' {...inputEventHandlers.age} />
+        <p className='Error'> {errors && errors.age} </p>
+      </div>
+    );
+  },
+);
+
+render(
+  <TestForm
+    formStateManager={formStateManager}
+  />,
+  document.getElementById('app'),
+);

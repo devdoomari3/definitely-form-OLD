@@ -1,16 +1,6 @@
 import {
-  observable,
-} from 'mobx';
-import {
-  mapObjIndexed,
-} from 'ramda';
-import {
   Observable,
 } from 'rxjs';
-
-import {
-  createForm,
-} from 'final-form';
 import {
   MobxStateManager,
 } from './MobxStateManager';
@@ -19,10 +9,6 @@ import {
   BaseErrorValuesType,
   DefaultErrorValuesType,
 } from './types/ErrorValueType';
-import {
-  ParsedValueProperty,
-  ValueProperty,
-} from './types/ExtractType';
 import {
   FormData,
   FormDataParsed,
