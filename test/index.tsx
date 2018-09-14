@@ -24,6 +24,9 @@ const formStateManager = getMobxStateManager(
   age: string | number;
 }>({
   streamValidatorFactory(formStateStream) {
+    const userNameValidation = formStateStream.pipe(
+
+    )
     return formStateStream.pipe(
       map(a => ({
         name: new UsernameTooShort(),
@@ -50,7 +53,10 @@ const TestForm: React.StatelessComponent<PropsType> = observer(
     return (
       <div>
         <p>asd</p>
-        <input type='text' {...inputEventHandlers.age} />
+        <input
+          type='text'
+          {...inputEventHandlers.age}
+        />
         <p className='Error'> {errors && errors.age} </p>
       </div>
     );

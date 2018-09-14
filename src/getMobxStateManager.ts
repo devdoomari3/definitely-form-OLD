@@ -1,6 +1,7 @@
 import {
   Observable,
 } from 'rxjs';
+import { EventStreams } from './EventStreams';
 import { FormState } from './FormState';
 import {
   MobxStateManager,
@@ -12,11 +13,9 @@ import {
 } from './types/ErrorValueType';
 import {
   FormData,
-  FormDataParsed,
 } from './types/FormData';
 import { FormSpecBase } from './types/FormSpecBase';
 import { GetFields } from './types/GetFields';
-import { MaybePromise } from './types/MaybePromise';
 
 export function getMobxStateManager<
   FormSpec extends FormSpecBase,
@@ -31,18 +30,15 @@ export function getMobxStateManager<
       = DefaultErrorValuesType<FormSpec>
   >(args: {
     streamValidatorFactory?: undefined;
-    validator? (
-      formState: FormState<FormSpec>,
-    ): MaybePromise<null | ErrorValues>;
   } | {
     validator?: undefined;
     streamValidatorFactory? (
-      formStateObservable: Observable<FormState<FormSpec>>,
+      formStateStream: Observable<FormState<FormSpec>>,
+      eventStreams: EventStreams<FormSpec>,
     ): Observable<null | ErrorValues>;
   }) {
 
     const {
-      validator,
       streamValidatorFactory,
     } = args;
 
@@ -52,7 +48,6 @@ export function getMobxStateManager<
     >({
       initialValues,
       fieldsSpec,
-      validator,
       streamValidatorFactory,
     });
   }
