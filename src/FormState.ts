@@ -10,6 +10,9 @@ export type FormState<
   touched: {
     [key in keyof FormSpec]?: boolean;
   };
+  edited: {
+    [key in keyof FormSpec]?: boolean;
+  };
   values: Partial<FormData<FormSpec>>;
   isInvalid?: boolean;
 };

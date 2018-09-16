@@ -2053,6 +2053,10 @@ ignore-walk@^3.0.1:
   dependencies:
     minimatch "^3.0.4"
 
+immer@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-1.6.0.tgz#4e41801272d64bff12d4b58ada0276bb2f4ead81"
+
 indexes-of@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/indexes-of/-/indexes-of-1.0.1.tgz#f30f716c8e2bd346c7b67d3df3915566a7c05607"
@@ -2586,6 +2590,10 @@ mobx-react@^5.2.6:
   dependencies:
     hoist-non-react-statics "^2.5.0"
     react-lifecycles-compat "^3.0.2"
+
+mobx-utils@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/mobx-utils/-/mobx-utils-5.0.2.tgz#82325c66c86a4b0a9c161df08bd71ebca0f9c902"
 
 mobx@4:
   version "4.4.0"

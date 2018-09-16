@@ -1,5 +1,11 @@
-import { observable } from 'mobx';
-import { mapObjIndexed } from 'ramda';
+import {
+  computed,
+  observable,
+} from 'mobx';
+import {
+  IObservableStream,
+  toStream,
+} from 'mobx-utils';
 import { Observable } from 'rxjs/observable';
 import {
   createEventStreams,
@@ -14,10 +20,19 @@ import {
   EventHandler,
   EventHandlers,
 } from './types/EventHandler';
+import { ValueProperty } from './types/ExtractType';
 import { FormSpecBase } from './types/FormSpecBase';
-import { MaybePromise } from './types/MaybePromise';
+import { mapObject } from './utils/ObjectMap';
 
-export class MobxStateManager <
+export type StreamValidatorFactory<
+  FormSpec extends FormSpecBase,
+  ErrorValues extends BaseErrorValuesType<FormSpec>
+> = (
+  formState: IObservableStream<FormState<FormSpec>>,
+  eventStreams: EventStreams<FormSpec>,
+) => Observable<ErrorValues | null>;
+
+export class MobxRxJSStateManager <
   FormSpec extends FormSpecBase,
   ErrorValues extends BaseErrorValuesType<FormSpec>
     = DefaultErrorValuesType<FormSpec>
@@ -30,38 +45,42 @@ export class MobxStateManager <
   inputEventHandlers: EventHandlers<FormSpec>;
 
   eventStreams: EventStreams<FormSpec>;
+  errorStream: Observable<ErrorValues | null>;
   // values?: {[key in keyof FormSpec]: ValueProperty<FormSpec[key] > };
   @observable formState: FormState<FormSpec> = {
     active: null,
     touched: {},
+    edited: {},
     values: {},
   };
-
+  formStateStream = toStream(() => this.formState);
   constructor(args: {
     initialValues?: Partial<FormData>;
     fieldsSpec: FormSpec;
-    streamValidatorFactory? (
-      formStateStream: Observable<FormState<FormSpec>>,
-      eventStreams: EventStreams<FormSpec>,
-    ): Observable<null | ErrorValues>;
+    toStreamValidator: StreamValidatorFactory<FormSpec, ErrorValues>;
   }) {
     const {
       initialValues,
       fieldsSpec,
     } = args;
 
+    this.eventStreams = createEventStreams(fieldsSpec);
+    this.errorStream = args.toStreamValidator(
+      this.formStateStream,
+      this.eventStreams,
+    );
     this.initialValues = initialValues || {};
     this.fieldsSpec = fieldsSpec;
-    this.eventStreams = createEventStreams(fieldsSpec);
-    this.inputEventHandlers = mapObjIndexed(
+
+    this.inputEventHandlers = mapObject(
       (value, key) => this.createEventHandlersFor(key, fieldsSpec),
       fieldsSpec,
-    ) as any;
+    );
   }
 
   private createEventHandlersFor<
     fieldNameType extends keyof FormSpec,
-    Value extends FormSpec[fieldNameType]
+    Value extends ValueProperty<FormSpec[fieldNameType]>
   >(
     fieldName: keyof FormSpec,
     fieldsSpec: FormSpec,
@@ -71,12 +90,17 @@ export class MobxStateManager <
 
     return {
       onBlur() {
+        self.formState.active = null;
         self.eventStreams.focusStreams[fieldName].next(false);
       },
       onFocus() {
+        self.formState.active = fieldName;
+        self.formState.touched[fieldName] = true;
         self.eventStreams.focusStreams[fieldName].next(true);
       },
       onChange(value: Value) {
+        self.formState.edited[fieldName] = true;
+        self.formState.values[fieldName] = value;
         self.eventStreams.changeStreams[fieldName].next(value);
       },
     };

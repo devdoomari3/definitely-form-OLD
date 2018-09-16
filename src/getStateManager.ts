@@ -1,11 +1,7 @@
 import {
-  Observable,
-} from 'rxjs';
-import { EventStreams } from './EventStreams';
-import { FormState } from './FormState';
-import {
-  MobxStateManager,
-} from './MobxStateManager';
+  RxJSStateManager,
+  StreamValidatorFactory,
+} from './RxJSStateManager';
 import { createField } from './types/CreateField';
 import {
   BaseErrorValuesType,
@@ -17,7 +13,7 @@ import {
 import { FormSpecBase } from './types/FormSpecBase';
 import { GetFields } from './types/GetFields';
 
-export function getMobxStateManager<
+export function createFormState<
   FormSpec extends FormSpecBase,
 >(
   getFields: GetFields<FormSpec>,
@@ -25,32 +21,27 @@ export function getMobxStateManager<
 ) {
   const fieldsSpec = getFields(createField);
 
-  function _getMobxStateManagerWithValidation<
+  function withRxjsManager<
     ErrorValues extends BaseErrorValuesType<FormSpec>
       = DefaultErrorValuesType<FormSpec>
   >(args: {
-    streamValidatorFactory?: undefined;
-  } | {
-    validator?: undefined;
-    streamValidatorFactory? (
-      formStateStream: Observable<FormState<FormSpec>>,
-      eventStreams: EventStreams<FormSpec>,
-    ): Observable<null | ErrorValues>;
+    toStreamValidator: StreamValidatorFactory<FormSpec, ErrorValues>;
   }) {
-
     const {
-      streamValidatorFactory,
+      toStreamValidator,
     } = args;
 
-    return new MobxStateManager<
+    return new RxJSStateManager<
       FormSpec,
       ErrorValues
     >({
       initialValues,
       fieldsSpec,
-      streamValidatorFactory,
+      toStreamValidator,
     });
   }
 
-  return _getMobxStateManagerWithValidation;
+  return {
+    withRxjsManager,
+  };
 }
