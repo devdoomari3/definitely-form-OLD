@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { MobxRxJSStateManager } from './MobxRxJSStateManager';
+import { combineLatest } from 'rxjs/operators/combineLatest';
+import { Subscription } from 'rxjs/Subscription';
+import { RxJSStateManager } from './RxJSStateManager';
 import { BaseErrorValuesType } from './types/ErrorValueType';
 import { EventHandlers } from './types/EventHandler';
 import { FormSpecBase } from './types/FormSpecBase';
@@ -8,7 +10,17 @@ export type PropsType<
   FormSpec extends FormSpecBase,
   ErrorValues extends BaseErrorValuesType<FormSpec>,
 > = {
-  stateManager: MobxRxJSStateManager<FormSpec, ErrorValues>;
+  stateManager: RxJSStateManager<FormSpec, ErrorValues>;
+  children(props: {
+    inputEventHandlers: EventHandlers<FormSpec>;
+  }): React.ReactElement<any>;
+};
+
+export type StateType<
+  FormSpec extends FormSpecBase,
+  ErrorValues extends BaseErrorValuesType<FormSpec>,
+> = {
+  stateManager: RxJSStateManager<FormSpec, ErrorValues>;
   children(props: {
     inputEventHandlers: EventHandlers<FormSpec>;
   }): React.ReactElement<any>;
@@ -20,11 +32,37 @@ export class ReactComponent<
   PropsType<
     FormSpec,
     ErrorValues
+  >,
+  StateType<
+    FormSpec,
+    ErrorValues
   >
 > {
+  subscription?: Subscription;
   componentDidMount() {
     // subscribe to stateManager.
-
+    const {
+      stateManager,
+    } = this.props;
+    this.subscription = stateManager
+                .formStateStream
+                .pipe(
+                  combineLatest(
+                    stateManager.errorStream,
+                    (formState, errors) => ({
+                      formState, errors,
+                    }),
+                  ),
+                )
+                .subscribe(({
+                  formState,
+                  errors,
+                }) => {
+                  this.setState({
+                    formState,
+                    errors,
+                  });
+                });
   }
   componentWillUnmount() {
     // unsubscribe to stateManager.

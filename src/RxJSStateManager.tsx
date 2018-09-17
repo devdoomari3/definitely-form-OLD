@@ -1,3 +1,4 @@
+import immer from 'immer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/observable';
 import {
@@ -83,38 +84,40 @@ export class RxJSStateManager <
 
     return {
       onBlur() {
-        self.formStateStream.next({
-          ...self.formStateStream.value,
-          active: null,
-        });
+        self.formStateStream.next(
+          immer(
+            self.formStateStream.value,
+            formState => {
+              formState.active = null;
+            },
+          ),
+        );
         self.eventStreams.focusStreams[fieldName].next(false);
       },
       onFocus() {
-        // const oldFormState = self.formStateStream.value;
-        // const oldFormStateTouched = oldFormState.touched || {},
-        self.formStateStream.next({
-          ...self.formStateStream.value,
-          active: fieldName,
-          // tslint:disable-next-line:prefer-object-spread
-          touched: Object.assign(
-            self.formStateStream.value.touched,
-            {
-              [fieldName]: true,
+        self.formStateStream.next(
+          immer(
+            self.formStateStream.value,
+            (formState)  => {
+              const f = formState as FormState<FormSpec>;
+              f.touched[fieldName] = true;
+              f.active = fieldName;
             },
           ),
-        });
+        );
         self.eventStreams.focusStreams[fieldName].next(true);
       },
       onChange(value: Value) {
-        self.formStateStream.next({
-          ...self.formStateStream.value,
-          active: fieldName,
-          touched: {
-
-          },
-        });
-        self.formState.edited[fieldName] = true;
-        self.formState.values[fieldName] = value;
+        self.formStateStream.next(
+          immer(
+            self.formStateStream.value,
+            (formState)  => {
+              const f = formState as FormState<FormSpec>;
+              f.edited[fieldName] = true;
+              f.values[fieldName] = value;
+            },
+          ),
+        );
         self.eventStreams.changeStreams[fieldName].next(value);
       },
     };
